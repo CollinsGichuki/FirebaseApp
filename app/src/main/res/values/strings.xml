@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">FirebaseApp</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="firebaseapp1_company">Firebase App</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_out_menu_item">Sign Out</string>
+    <string name="enter_your_email_address">Enter your email address</string>
+    <string name="send_email">Send Email</string>
+    <string name="go_back_to_sign_in_page">Go back to Sign In Activity</string>
+    <string name="please_verify_your_email_address">Please verify your email address</string>
+    <string name="failed">Failed</string>
+</resources>
