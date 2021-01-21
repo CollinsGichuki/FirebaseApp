@@ -11,4 +11,13 @@
     <string name="go_back_to_sign_in_page">Go back to Sign In Activity</string>
     <string name="please_verify_your_email_address">Please verify your email address</string>
     <string name="failed">Failed</string>
+    <string name="image_button_desc">This is the play and pause button for the video player.</string>
+    <string name="select_video">Select Video</string>
+    <string name="videos_activity">Videos Activity</string>
+    <string name="default_value">00:00</string>
+    <string name="upload_photo">upload Photo</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="choose_photo">Choose Photo</string>
+    <string name="upload_video">Upload Video</string>
+    <string name="imageview_desc">ImageView</string>
 </resources>

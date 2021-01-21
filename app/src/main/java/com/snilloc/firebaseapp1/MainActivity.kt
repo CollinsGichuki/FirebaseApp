@@ -23,17 +23,20 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.snilloc.firebaseapp1.databinding.ActivityMainBinding
 import java.util.*
-import kotlin.random.Random
+
+private const val TAG = "MAIN_ACTIVITY"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
-    private val TAG = "MAIN_ACTIVITY"
     private lateinit var downloadPhotoUri: Uri
     private lateinit var uploadPhotoUri: Uri
     private lateinit var allThePhotoNames: MutableList<String>
+
+    private var randomPosition = 0
+    private var lastRandomPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,9 +58,6 @@ class MainActivity : AppCompatActivity() {
         //Get the photos stored
         getAllPhotos()
 
-        //Points to child "meme-photos"
-        //loadImage()
-
         binding.apply {
             chooseBtn.setOnClickListener {
                 choosePhotoFromGallery()
@@ -65,45 +65,55 @@ class MainActivity : AppCompatActivity() {
             uploadBtn.setOnClickListener {
                 uploadPhotoToFirebase()
             }
+            randomPhotoBtn.setOnClickListener {
+                loadRandomPhoto()
+            }
         }
-
     }
 
     private fun getAllPhotos() {
+        //Download all the photo urls from the bucket
         Log.d(TAG, "Getting all photos")
         //Reference to the bucket containing all the photos
         val allPhotosRef = storageReference.child("memes-photos/")
 
-//        listOf(allPhotosRef.downloadUrl.addOnSuccessListener {
-//            Log.d(TAG, "List download successful")
-//            val photoUrl = it
-//            Log.d(TAG, "PhotoUrl: $photoUrl")
-//        }.addOnCanceledListener {
-//            Log.d(TAG, "List download unsuccessful")
-//        })
-
         allPhotosRef.listAll().addOnSuccessListener {
             val results = it.items.size
             val photoLists: List<StorageReference> = it.items
-
-
+            //iterate through the List adding the name of each Photo to the variable allPhotoNames
             for (photoList in photoLists) {
                 val photoUrl = photoList.name
                 allThePhotoNames.add(photoUrl)
                 Log.d(TAG, "This the url: ${photoUrl}/n}")
             }
+            //Load a random Image
             if (allThePhotoNames.size == photoLists.size) {
-                val randomUrlPosition = (0..allThePhotoNames.size).random()
+                //First make sure we have finished iterating through the List
+                //get a name randomly selected and load that image
+                val randomUrlPosition = (0 until allThePhotoNames.size).random()
                 val randomPhotoUrl = allThePhotoNames[randomUrlPosition]
+
                 loadImage(randomPhotoUrl)
             }
-//            val downloadedUrl = photoLists[1]
-//            Log.d(TAG, "The first item: $downloadedUrl}")
-
             Log.d(TAG, "Size of list is: $results")
         }.addOnFailureListener(this) { exception: Exception ->
             Toast.makeText(this, "Getting all photos failed: $exception", Toast.LENGTH_LONG).show()
             Log.d(TAG, exception.toString())
+        }
+    }
+
+    private fun loadRandomPhoto() {
+        //Previous randomPosition
+        lastRandomPosition = randomPosition
+        //Generate a random number
+        randomPosition = (0 until allThePhotoNames.size).random()
+        //Check if they match
+        if (randomPosition != lastRandomPosition) {
+            val randomPhotoUrl = allThePhotoNames[randomPosition]
+            loadImage(randomPhotoUrl)
+        } else {
+            randomPosition = (0 until allThePhotoNames.size).random()
+            loadRandomPhoto()
         }
     }
 
@@ -127,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         val imageView = findViewById<ImageView>(R.id.image1)
         Glide.with(this)
             .load(downloadPhotoUri)
-            .centerCrop()
+            .fitCenter()
             .error(R.drawable.ic_baseline_error_24)
             .into(imageView)
 
@@ -192,15 +202,15 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "Photo upload failed: $exception")
                     Toast.makeText(this, "Error uploading photo: $exception", Toast.LENGTH_LONG)
                         .show()
-
                 }
+            //Load a random photo
+            loadRandomPhoto()
         } else {
             Toast.makeText(this, "Choose a photo to upload", Toast.LENGTH_LONG).show()
             Log.d(TAG, "No photo selected")
             return
         }
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater: MenuInflater = menuInflater
@@ -209,11 +219,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.sign_out_menu_item) {
-            signOut()
-            true
-        } else {
-            super.onOptionsItemSelected(item)
+        return when (item.itemId) {
+            R.id.sign_out_menu_item -> {
+                signOut()
+                true
+            }
+            R.id.video_activity -> {
+                goToVideoActivity()
+                true
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
+    private fun goToVideoActivity() {
+        val intent = Intent(this, VideoActivity::class.java)
+        //Verify that the Intent will open up the Activity without any problems
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
         }
     }
 

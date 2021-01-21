@@ -32,7 +32,7 @@
         android:id="@+id/choose_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose Photo"
+        android:text="@string/choose_photo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/upload_btn"
         app:layout_constraintTop_toBottomOf="@+id/tv_title"
@@ -42,11 +42,21 @@
         android:id="@+id/upload_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="upload Photo"
+        android:text="@string/upload_photo"
         app:layout_constraintStart_toEndOf="@+id/choose_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_title"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <Button
+        android:id="@+id/random_photo_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/change_photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/upload_btn"
+        android:layout_marginTop="15dp"/>
 
     <ProgressBar
         android:id="@+id/progress_bar"

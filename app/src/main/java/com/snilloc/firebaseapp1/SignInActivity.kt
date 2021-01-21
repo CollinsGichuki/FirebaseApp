@@ -8,16 +8,20 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.snilloc.firebaseapp1.databinding.ActivitySignInBinding
 
+private const val TAG = "MainActivity"
+
 class SignInActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignInBinding
-    private val TAG = "MainActivity"
+    private lateinit var signInViewModel: SignInViewModel
+    private lateinit var email: String
+    private lateinit var password: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,8 +32,17 @@ class SignInActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
+        //ViewModel
+        signInViewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
+
+        email = binding.emailAddressEt.text.toString()
+        password = binding.passwordEd.text.toString()
+
         binding.apply {
             btnSignIn.setOnClickListener {
+                progressBar.visibility = View.VISIBLE
+                viewModelSignIn()
+
                 singIn()
             }
             signUpTv.setOnClickListener {
@@ -38,6 +51,14 @@ class SignInActivity : AppCompatActivity() {
             forgetPasswordTv.setOnClickListener {
                 passwordResetActivity()
             }
+        }
+    }
+
+    private fun viewModelSignIn() {
+        val status = signInViewModel.signIn(email, password)
+
+        if (status == 0) {
+
         }
     }
 
@@ -67,20 +88,20 @@ class SignInActivity : AppCompatActivity() {
         val email = binding.emailAddressEt.text.toString()
         val password = binding.passwordEd.text.toString()
 
-        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) {
-            task ->
-            if (task.isSuccessful){
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
+            if (task.isSuccessful) {
                 Log.d(TAG, "signedInUserWithEmail:success")
                 //Check if user is verified
                 val user = auth.currentUser
-                if (user!!.isEmailVerified){
+                if (user!!.isEmailVerified) {
                     goToHomeActivity()
                     finish()
                 } else {
                     binding.emailVerifyTv.visibility = View.VISIBLE
                 }
             } else {
-                Toast.makeText(baseContext, "Incorrect Email or Password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(baseContext, "Incorrect Email or Password", Toast.LENGTH_SHORT)
+                    .show()
             }
             //Hide ProgressBar
             binding.progressBar.visibility = View.INVISIBLE
@@ -109,7 +130,6 @@ class SignInActivity : AppCompatActivity() {
         } else {
             binding.emailAddressEt.error = null
         }
-
         val password = binding.passwordEd.text.toString()
         if (TextUtils.isEmpty(password)) {
             binding.passwordEd.error = "Required"
@@ -117,7 +137,6 @@ class SignInActivity : AppCompatActivity() {
         } else {
             binding.passwordEd.error = null
         }
-
         return valid
     }
 }
