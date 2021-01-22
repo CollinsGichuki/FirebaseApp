@@ -8,20 +8,25 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.snilloc.firebaseapp1.databinding.ActivitySignInBinding
 
-private const val TAG = "MainActivity"
+private const val TAG = "Sign_in_activity"
+private const val RC_SIGN_IN = 9001
 
 class SignInActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignInBinding
-    private lateinit var signInViewModel: SignInViewModel
     private lateinit var email: String
     private lateinit var password: String
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +37,14 @@ class SignInActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
-        //ViewModel
-        signInViewModel = ViewModelProvider(this).get(SignInViewModel::class.java)
+
+        //Google sign-in
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         email = binding.emailAddressEt.text.toString()
         password = binding.passwordEd.text.toString()
@@ -41,8 +52,6 @@ class SignInActivity : AppCompatActivity() {
         binding.apply {
             btnSignIn.setOnClickListener {
                 progressBar.visibility = View.VISIBLE
-                viewModelSignIn()
-
                 singIn()
             }
             signUpTv.setOnClickListener {
@@ -51,15 +60,54 @@ class SignInActivity : AppCompatActivity() {
             forgetPasswordTv.setOnClickListener {
                 passwordResetActivity()
             }
+            googleSignInTv.setOnClickListener {
+                signInWithGoogle()
+            }
         }
     }
 
-    private fun viewModelSignIn() {
-        val status = signInViewModel.signIn(email, password)
+    private fun signInWithGoogle() {
+        //Sign out the previous google account used to sign in
+        googleSignInClient.signOut()
+        Log.d(TAG, "Creating Sign-in Intent")
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
 
-        if (status == 0) {
-
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == RC_SIGN_IN) {
+            Log.d(TAG, "Result Ok")
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            Log.d(TAG, "Data from Intent, $data")
+            try {
+                //If sign-in was successful, authenticate with Firebase
+                val account = task.getResult(ApiException::class.java)
+                Log.d(TAG, "firebaseAuthWithGoogle:" + account?.id);
+                account!!.idToken?.let { firebaseAuthWithGoogle(it) }
+            } catch (e: ApiException) {
+                Log.w(TAG, "Google sign in failed", e);
+            }
+        } else {
+            Log.d(TAG, "Result Not Okay. Result Code: $resultCode")
         }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credentials = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credentials)
+            .addOnCompleteListener {
+                if (it.isComplete) {
+                    if (it.isSuccessful) {
+                        Log.d(TAG, "signInWithCredential:success")
+                        goToHomeActivity()
+                        finish()
+                    } else {
+                        Log.d(TAG, "signInWithCredential:failure. ${it.exception}")
+                        Toast.makeText(this, "Authentication failed", Toast.LENGTH_LONG);
+                    }
+                }
+            }
     }
 
     private fun signUp() {
