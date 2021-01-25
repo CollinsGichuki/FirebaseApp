@@ -1,4 +1,4 @@
-package com.snilloc.firebaseapp1
+package com.snilloc.firebaseapp1.ui
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -25,6 +25,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import com.snilloc.firebaseapp1.R
+import com.snilloc.firebaseapp1.authentication.SignInActivity
 import com.snilloc.firebaseapp1.databinding.ActivityMainBinding
 import java.util.*
 
@@ -52,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         auth = Firebase.auth
         //Initialize FirebaseStorage
         storage = Firebase.storage
-        //Initialize allPhotonames to an empty mutableList
+        //Initialize allPhotoNames to an empty mutableList
         allThePhotoNames = mutableListOf()
 
         //Create a Storage Reference
@@ -107,6 +109,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadRandomPhoto() {
+        //Make sure that we don't show the same random photo twice
         //Previous randomPosition
         lastRandomPosition = randomPosition
         //Generate a random number
@@ -123,7 +126,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadImage(photoUrl: String) {
         binding.progressBar.visibility = View.VISIBLE
-        //"memes-photos/1528372.jpg"
+        //Download the photo selected
         storageReference.child("memes-photos/$photoUrl").downloadUrl.addOnSuccessListener(this) {
             Log.d(TAG, "Download successful")
             downloadPhotoUri = it
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             loadPhotos()
         }.addOnFailureListener(this) { exception: Exception ->
             binding.progressBar.visibility = View.INVISIBLE
-            Toast.makeText(this, "Creating account failed: $exception", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Downloading image failed: $exception", Toast.LENGTH_LONG).show()
             Log.d(TAG, exception.toString())
         }
     }
@@ -157,7 +160,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUi(currentUser: FirebaseUser?) {
         if (currentUser != null) {
-            binding.tvTitle.text = "Welcome back"
+            binding.tvTitle.text = getString(R.string.welcome_back_text)
         } else {
             val signInIntent = Intent(this, SignInActivity::class.java)
             //Verify that the Intent will open up the Activity without any problems
@@ -180,6 +183,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
             uploadPhotoUri = data.data!!
+            Log.d(TAG, "Photo Uri: $uploadPhotoUri")
             val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uploadPhotoUri)
             //Set the image
             binding.image1.setImageBitmap(bitmap)

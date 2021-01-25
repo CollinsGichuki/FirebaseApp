@@ -1,4 +1,4 @@
-package com.snilloc.firebaseapp1
+package com.snilloc.firebaseapp1.ui
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -15,6 +15,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
+import com.snilloc.firebaseapp1.R
 import com.snilloc.firebaseapp1.databinding.ActivityVideoBinding
 import java.util.*
 
@@ -86,21 +87,10 @@ class VideoActivity : AppCompatActivity() {
         }
     }
 
-    //Converts the name of the video to a Uri
-    private fun getMedia(mediaName: String): Uri {
-        //Check if it is a valid Uri
-        return if (URLUtil.isValidUrl(mediaName)) {
-            Uri.parse(mediaName)
-        } else {
-            //Media source is a raw resource embedded in the app
-            Uri.parse("android.resource://$packageName/raw/$mediaName")
-        }
-    }
-
     private fun initializePlayer() {
         //Show the Progress Bar
         binding.progressBar.visibility = View.VISIBLE
-        //val videoUri: Uri = getMedia(videoUrl)
+        //Set the selectedVideo's url to be displayed on the VideoView
         simpleVideoView.setVideoURI(selectedVideoUri)
 
         //Listen for when the video has finished buffering

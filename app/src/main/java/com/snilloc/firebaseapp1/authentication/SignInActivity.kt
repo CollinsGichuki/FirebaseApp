@@ -1,4 +1,4 @@
-package com.snilloc.firebaseapp1
+package com.snilloc.firebaseapp1.authentication
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,10 +16,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.snilloc.firebaseapp1.R
 import com.snilloc.firebaseapp1.databinding.ActivitySignInBinding
+import com.snilloc.firebaseapp1.ui.MainActivity
 
 private const val TAG = "Sign_in_activity"
-private const val RC_SIGN_IN = 9001
+private const val RC_SIGN_IN = 9001// Random Number
 
 class SignInActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -37,7 +39,6 @@ class SignInActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
-
         //Google sign-in
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -46,16 +47,16 @@ class SignInActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        email = binding.emailAddressEt.text.toString()
-        password = binding.passwordEd.text.toString()
-
         binding.apply {
+            email = emailAddressEt.text.toString()
+            password = passwordEd.text.toString()
+
             btnSignIn.setOnClickListener {
                 progressBar.visibility = View.VISIBLE
                 singIn()
             }
             signUpTv.setOnClickListener {
-                signUp()
+                signUpWithEmailAndPassword()
             }
             forgetPasswordTv.setOnClickListener {
                 passwordResetActivity()
@@ -110,7 +111,7 @@ class SignInActivity : AppCompatActivity() {
             }
     }
 
-    private fun signUp() {
+    private fun signUpWithEmailAndPassword() {
         val intent = Intent(this, SignUpActivity::class.java)
         //Verify that the Intent will open up the Activity without any problems
         if (intent.resolveActivity(packageManager) != null) {

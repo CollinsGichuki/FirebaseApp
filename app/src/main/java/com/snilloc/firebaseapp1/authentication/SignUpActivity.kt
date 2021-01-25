@@ -1,4 +1,4 @@
-package com.snilloc.firebaseapp1
+package com.snilloc.firebaseapp1.authentication
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,10 +13,11 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.snilloc.firebaseapp1.databinding.ActivitySignUpBinding
 
+private const val TAG = "SignUpActivity"
+
 class SignUpActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var auth: FirebaseAuth
-    private val TAG = "SignUpActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,14 +70,22 @@ class SignUpActivity : AppCompatActivity() {
 
                 //Send verification email
                 user!!.sendEmailVerification().addOnCompleteListener(this) {
-                    if (task.isSuccessful){
+                    if (task.isSuccessful) {
                         //Verify email to log in
                         Toast.makeText(this, "Verify email to log in", Toast.LENGTH_LONG)
                     } else {
-                        Toast.makeText(this, "There was an error sending your email verification", Toast.LENGTH_LONG)
+                        Toast.makeText(
+                            this,
+                            "There was an error sending your email verification",
+                            Toast.LENGTH_LONG
+                        )
                     }
                 }.addOnFailureListener(this) { exception: Exception ->
-                    Toast.makeText(this, "Sending the verification email failed: $exception", Toast.LENGTH_LONG)
+                    Toast.makeText(
+                        this,
+                        "Sending the verification email failed: $exception",
+                        Toast.LENGTH_LONG
+                    )
                 }
                 finish()
             } else {
@@ -114,7 +123,7 @@ class SignUpActivity : AppCompatActivity() {
         if (TextUtils.isEmpty(password)) {
             binding.passwordEd.error = "Required"
             valid = false
-        } else if(password.length<6){
+        } else if (password.length < 6) {
             binding.passwordEd.error = "Password should be more than 6 characters"
             valid = false
         } else {

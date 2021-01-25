@@ -1,4 +1,4 @@
-package com.snilloc.firebaseapp1
+package com.snilloc.firebaseapp1.authentication
 
 import android.os.Bundle
 import android.text.TextUtils
