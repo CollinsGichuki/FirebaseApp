@@ -22,4 +22,6 @@
     <string name="imageview_desc">ImageView</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="welcome_back_text">Welcome back</string>
+    <string name="recyclerview_item">RecyclerView_item</string>
+    <string name="add_image">Add Image</string>
 </resources>

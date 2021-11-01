@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -41,7 +42,6 @@ class SignInActivity : AppCompatActivity() {
 
         //Google sign-in
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
@@ -63,6 +63,25 @@ class SignInActivity : AppCompatActivity() {
             }
             googleSignInTv.setOnClickListener {
                 signInWithGoogle()
+            }
+        }
+    }
+
+    //check if user has been signed in
+    public override fun onStart() {
+        super.onStart()
+        //Check whether the user is signed in(non-null)
+        val currentUser = auth.currentUser
+        updateUi(currentUser)
+    }
+
+    private fun updateUi(currentUser: FirebaseUser?) {
+        if (currentUser != null) {
+            val mainActivityIntent = Intent(this, MainActivity::class.java)
+            //Verify that the Intent will open up the Activity without any problems
+            if (mainActivityIntent.resolveActivity(packageManager) != null) {
+                startActivity(mainActivityIntent)
+                finish()
             }
         }
     }
@@ -160,6 +179,7 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun goToHomeActivity() {
+        Log.d(TAG, "Goinghom3")
         val intent = Intent(this, MainActivity::class.java)
         //Verify that the Intent will open up the Activity without any problems
         if (intent.resolveActivity(packageManager) != null) {
